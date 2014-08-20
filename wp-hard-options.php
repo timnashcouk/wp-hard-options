@@ -3,7 +3,7 @@
 Plugin Name: WP Hard Options
 Plugin URI: https://timnash.co.uk/wordpress-hard-coded-options/
 Description: Checks Hard Coded WP Options
-Version: 0.4
+Version: 0.5
 Author: Tim Nash
 Author URI: https://timnash.co.uk
 License: GPL2
@@ -69,8 +69,8 @@ class WP_Hard_Options{
 	 * Returns the constant Key
 	 *
 	 * @since 0.5
-	 * @param string($method), mixed($arg)
-	 * @return false | string($option)
+	 * @param string($method)
+	 * @return string($constant)
 	 *
 	 **/
 	function get_constant_name( $method )
