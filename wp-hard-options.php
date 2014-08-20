@@ -17,13 +17,14 @@ class WP_Hard_Options{
 		}
 
 		$options = $this->get_constants( WP_OPTIONS_PREFIX );
-
-		foreach( $options as $option => $value ){
-			$name = end(explode( WP_OPTIONS_PREFIX.'_', $option));
-			$method_name = strtolower( $name );
-			if($method_name != 'prefix'){
-				$filter_name = 'pre_option_'.$method_name;
-				add_filter( $filter_name, array($this, $method_name ) );
+		if(!empty($options) && is_array($options)){
+			foreach( $options as $option => $value ){
+				$name = end(explode( WP_OPTIONS_PREFIX.'_', $option));
+				$method_name = strtolower( $name );
+				if( $method_name != 'prefix' ){
+					$filter_name = 'pre_option_'.$method_name;
+					add_filter( $filter_name, array($this, $method_name ) );
+				}
 			}
 		}
 	}
