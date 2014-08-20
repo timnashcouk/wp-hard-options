@@ -58,7 +58,8 @@ class WP_Hard_Options{
     			return false; 
     		}
     		else { 
-    			return $dump; 
+    			//Use if you want to return a second prefix for example
+    			return apply_filters('wp_hard_options',$dump); 
     		}
     	}
 	}
@@ -69,14 +70,14 @@ class WP_Hard_Options{
 	 *
 	 * @since 0.1
 	 * @param string($method), mixed($arg)
-	 * @return false | string($method)
+	 * @return false | string($option)
 	 * @todo probably should unserialise an object...
 	 *
 	 **/
 	function __call( $method, $arg = false ){
-		$method = strtoupper(WP_OPTIONS_PREFIX.'_'. $method);
-		if( defined( $method )){
-			return constant( $method );
+		$option = strtoupper(WP_OPTIONS_PREFIX.'_'. $method);
+		if( defined( $option )){
+			return constant( $option );
 		}
 		return false;
 	}
