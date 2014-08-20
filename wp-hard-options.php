@@ -59,9 +59,24 @@ class WP_Hard_Options{
     		}
     		else { 
     			//Use if you want to return a second prefix for example
-    			return apply_filters('wp_hard_options',$dump); 
+    			return apply_filters('wp_hard_options', $dump ); 
     		}
     	}
+	}
+
+	/**
+	 * Get Constant Name
+	 * Returns the constant Key
+	 *
+	 * @since 0.5
+	 * @param string($method), mixed($arg)
+	 * @return false | string($option)
+	 *
+	 **/
+	function get_constant_name( $method )
+	{
+		$constant = strtoupper(WP_OPTIONS_PREFIX.'_'. $method);
+		return apply_filters('wp_hard_options_constant_name', $constant );
 	}
 
 	/**
@@ -71,15 +86,25 @@ class WP_Hard_Options{
 	 * @since 0.1
 	 * @param string($method), mixed($arg)
 	 * @return false | string($option)
-	 * @todo probably should unserialise an object...
 	 *
 	 **/
 	function __call( $method, $arg = false ){
-		$option = strtoupper(WP_OPTIONS_PREFIX.'_'. $method);
-		if( defined( $option )){
-			return constant( $option );
+		//Check if it's cached, if we are using the DB as a caching engine this has just become self defeating!
+		$value = wp_cache_get( $method, 'options' );
+		if(!$value){
+			$option = $this->get_constant_name( $method );
+			if( defined( $option )){
+				$value = constant( $option );
+				//set the cache for next time
+				wp_cache_add( $method, $value, 'options' );
+			}
+			else{
+				return false;
+			}
 		}
-		return false;
+		//Return it back complete with previous filters
+		return apply_filters( 'option_' . $method, maybe_unserialize( $value ) );
+
 	}
 }
 
