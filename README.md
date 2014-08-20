@@ -1,7 +1,8 @@
-wp-hard-options
+WP Hard Options
 ===============
 
-Checks for Hard Coded WP Options prior to looking in the DB
+Allows you to set options normally expected in the wp_options table as constants to avoid making calls to DB.
+
 For full usage see - https://timnash.co.uk/wordpress-hard-coded-options/
 
 === Installation ===
