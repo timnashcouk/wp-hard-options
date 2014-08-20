@@ -3,7 +3,7 @@
 Plugin Name: WP Hard Options
 Plugin URI: https://timnash.co.uk/wordpress-hard-coded-options/
 Description: Checks Hard Coded WP Options
-Version: 0.5
+Version: 0.6
 Author: Tim Nash
 Author URI: https://timnash.co.uk
 License: GPL2
@@ -49,7 +49,7 @@ class WP_Hard_Options{
 	 * @return false | array($dump)
 	 *
 	 **/
-	function get_constants () {
+	function get_constants (){
     	foreach ( get_defined_constants() as $key => $value ) {
         	if (substr( $key,0, strlen( WP_OPTIONS_PREFIX ) ) == WP_OPTIONS_PREFIX ) {
         		$dump[$key] = $value; 
@@ -65,6 +65,22 @@ class WP_Hard_Options{
 	}
 
 	/**
+	 * Get Option Name
+	 * Returns the option name when passed a constant
+	 *
+	 * @since 0.6
+	 * @param string($constant)
+	 * @return string($name)
+	 *
+	 **/
+	function get_option_name( $constant ){
+		$name = end(explode(WP_OPTIONS_PREFIX.'_', $constant));
+		//force back to lower
+		$name = strtolower( $name );
+		return apply_filters('wp_hard_options_option_name', $name );
+	}
+
+	/**
 	 * Get Constant Name
 	 * Returns the constant Key
 	 *
@@ -77,6 +93,25 @@ class WP_Hard_Options{
 	{
 		$constant = strtoupper(WP_OPTIONS_PREFIX.'_'. $method);
 		return apply_filters('wp_hard_options_constant_name', $constant );
+	}
+
+	/**
+	 * Is Hard Option 
+	 * Check if the option is hard coded, currently this won't tell you if option exists in DB
+	 *
+	 * @since 0.6
+	 * @param string($option)
+	 * @return bool(true/false)
+	 * @todo flag if is in db;
+	 *
+	 **/
+	function is_hard_option( $option, $db = false )
+	{
+		if($this->get_constant_name( $option )){
+			//woot we can return option
+			return true;
+		}
+		return false;
 	}
 
 	/**
