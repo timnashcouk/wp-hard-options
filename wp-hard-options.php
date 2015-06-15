@@ -3,15 +3,15 @@
 Plugin Name: WP Hard Options
 Plugin URI: https://timnash.co.uk/wordpress-hard-coded-options/
 Description: Checks Hard Coded WP Options
-Version: 0.6
+Version: 0.7
 Author: Tim Nash
 Author URI: https://timnash.co.uk
 License: GPL2
-*/ 
+*/
 class WP_Hard_Options{
 
 	public static $instance;
-	
+
 	/**
 	 * Construct
 	 *
@@ -50,17 +50,18 @@ class WP_Hard_Options{
 	 *
 	 **/
 	function get_constants (){
+		$dump = array();
     	foreach ( get_defined_constants() as $key => $value ) {
         	if (substr( $key,0, strlen( WP_OPTIONS_PREFIX ) ) == WP_OPTIONS_PREFIX ) {
-        		$dump[$key] = $value; 
+        		$dump[$key] = $value;
         	}
-    		if(empty( $dump )) { 
-    			return false; 
-    		}
-    		else { 
-    			//Use if you want to return a second prefix for example
-    			return apply_filters('wp_hard_options', $dump ); 
-    		}
+    	}
+    	if(empty( $dump )) {
+    		return false;
+    	}
+    	else {
+    		//Use if you want to return a second prefix for example
+    		return apply_filters('wp_hard_options', $dump );
     	}
 	}
 
@@ -96,7 +97,7 @@ class WP_Hard_Options{
 	}
 
 	/**
-	 * Is Hard Option 
+	 * Is Hard Option
 	 * Check if the option is hard coded, currently this won't tell you if option exists in DB
 	 *
 	 * @since 0.6
@@ -107,7 +108,7 @@ class WP_Hard_Options{
 	 **/
 	function is_hard_option( $option, $db = false )
 	{
-		if($this->get_constant_name( $option )){
+		if(defined( $this->get_constant_name( $option ))){
 			//woot we can return option
 			return true;
 		}
@@ -124,14 +125,25 @@ class WP_Hard_Options{
 	 *
 	 **/
 	function __call( $method, $arg = false ){
-		//Check if it's cached, if we are using the DB as a caching engine this has just become self defeating!
-		$value = wp_cache_get( $method, 'options' );
+		$value = false;
+		//Define if we are going to cache/retrieve from cache for a single method
+		$cache = apply_filters( 'wp_hard_options_cache_'.$method , true);
+		//Check if we have already determined if we should be using cache, and check defaults override
+		if( $cache && ( defined( WP_HARD_OPTIONS_CACHE ) && WP_HARD_OPTIONS_CACHE == false )){
+			$cache = false;
+		}
+		if( $cache ){
+			//Check if it's cached, if we are using the DB as a caching engine this has just become self defeating!
+			$value = wp_cache_get( $method, 'options' );
+		}
 		if(!$value){
 			$option = $this->get_constant_name( $method );
 			if( defined( $option )){
 				$value = constant( $option );
-				//set the cache for next time
-				wp_cache_add( $method, $value, 'options' );
+				if( $cache ){
+					//set the cache for next time
+					wp_cache_add( $method, $value, 'options' );
+				}
 			}
 			else{
 				return false;
